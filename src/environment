@@ -1,21 +1,18 @@
 #!/bin/bash
 
-
 export PROJECT_ROOT=`pwd`
 export TAIR10=${PROJECT_ROOT}/reference/TAIR10-masked.fa
 export READS=${PROJECT_ROOT}/reads
 export MAPS=${PROJECT_ROOT}/maps
 
-
 export PICARD="java -jar ${PROJECT_ROOT}/src/picard.jar"
 export GATK="java -jar ${PROJECT_ROOT}/src/GenomeAnalysisTK.jar"
 
-
-if [[ h3.karst.uits.iu.edu == *karst* ]] 
+if [[ `hostname` == *karst* ]] 
 then
-module load bwa
-module load sra-toolkit
-module load java
+	module load bwa
+	module load sra-toolkit
+	module load java
 fi
 
 source ${PROJECT_ROOT}/src/functions.sh
