@@ -1,0 +1,36 @@
+#!/bin/bash
+
+#PBS -l nodes=1:ppn=1,walltime=2:00:00,vmem=20gb 
+
+ACCESSION=$1
+
+# load modules for karst
+
+ROOT="/N/dc2/scratch/muroztur/heteroMutationRate"
+
+cd $ROOT
+
+source src/environment
+
+cd $MAPS
+
+
+# add readgroups, sort and convert to bam with index
+${PICARD} AddOrReplaceReadGroups \
+	I=${ACCESSION}.sam \
+	O=${ACCESSION}.bam \
+	SORT_ORDER=coordinate \
+	CREATE_INDEX=True \
+	RGID=foo \
+	RGLB=bar \
+	RGPL=illumina \
+	RGSM=${ACCESSION} \
+	RGPU=blank 
+
+# Mark duplicates
+${PICARD} MarkDuplicates \
+	I=${ACCESSION}.bam \
+	O=${ACCESSION}.marked.bam \
+	M=${ACCESSION}-metrics.txt \
+	CREATE_INDEX=True
+

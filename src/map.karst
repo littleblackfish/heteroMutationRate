@@ -1,0 +1,19 @@
+#!/bin/bash
+
+#PBS -l nodes=1:ppn=8,walltime=1:00:00
+
+ACCESSION=$1
+
+ROOT="/N/dc2/scratch/muroztur/heteroMutationRate"
+
+cd $ROOT
+
+source src/environment
+
+cd $MAPS
+
+bwa mem -t 8 $TAIR10 \
+	$READS/${ACCESSION}_1.fastq.gz \
+	$READS/${ACCESSION}_2.fastq.gz  \
+	> ${ACCESSION}.sam
+
