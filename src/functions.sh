@@ -26,7 +26,7 @@ function get_reads {
 function map_reads {
 	REFERENCE=$1
 	ACCESSION=$2
-	$BWA mem ${REFERENCE} \
+	bwa mem ${REFERENCE} \
 	${ACCESSION}_1.fastq.gz ${ACCESSION}_2.fastq.gz \
 	> ${ACCESSION}.sam
 }
