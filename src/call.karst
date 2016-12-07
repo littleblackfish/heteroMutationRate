@@ -1,0 +1,21 @@
+#!/bin/bash
+
+#PBS -q preempt
+#PBS -l nodes=1:ppn=1,walltime=2:00:00,vmem=20gb 
+
+ACCESSION=$1
+
+# load modules for karst
+
+ROOT="/N/dc2/scratch/muroztur/heteroMutationRate"
+
+cd $ROOT
+
+source $ROOT/src/environment
+
+cd $CALLS
+
+module load java
+
+call_variants $ACCESSION
+

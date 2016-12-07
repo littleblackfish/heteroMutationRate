@@ -1,4 +1,5 @@
-while read acc 
+while read ACCESSION 
 do 
-	! [ -e $acc.sam ] && qsub ../src/map.karst -F $acc -N $acc 
+
+	! [ -e $ACCESSION.sam ] && qsub -q preempt ../src/map.karst -F $ACCESSION -N $ACCESSION-map
 done < ../reads/f2_accession

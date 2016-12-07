@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#PBS -l nodes=1:ppn=8,walltime=1:00:00
+#PBS -l nodes=1:ppn=2,walltime=1:00:00
 
 ACCESSION=$1
 
@@ -8,12 +8,15 @@ ROOT="/N/dc2/scratch/muroztur/heteroMutationRate"
 
 cd $ROOT
 
-source src/environment
+source $ROOT/src/environment
 
 cd $MAPS
 
-bwa mem -t 8 $TAIR10 \
+module load bwa
+
+bwa mem -t 2 -v 2 $TAIR10 \
 	$READS/${ACCESSION}_1.fastq.gz \
 	$READS/${ACCESSION}_2.fastq.gz  \
 	> ${ACCESSION}.sam
 
+qsub $ROOT/src/sam_to_bam.karst -F $ACCESSION -N $ACCESSION-tobam

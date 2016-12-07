@@ -38,11 +38,6 @@ function map_reads {
 function sam_to_bam {
 	which java
 	ACC=$1
-	if [ -e ${ACC}.bam ]
-	then
-		echo ${ACC} already exists
-	else
-		echo ${ACC} begin.
 	# add readgroups, sort and convert to bam with index
 	  ${PICARD} AddOrReplaceReadGroups \
 		  I=${ACC}.sam \
@@ -54,7 +49,6 @@ function sam_to_bam {
 		  RGPL=illumina \
 		  RGSM=${ACC} \
 		  RGPU=blank
-  fi
 }
 
 # marks duplicate mappings
@@ -82,9 +76,7 @@ function call_variants {
 	ACCESSION=$1
 	${GATK} -R ${TAIR10} \
 		-T HaplotypeCaller  \
-		-I ${ACCESSION}.marked.bam\
+		-I $MAPS/${ACCESSION}.marked.bam \
 		-ERC GVCF \
 		-o ${ACCESSION}.g.vcf
 }
-
-export TAIR10

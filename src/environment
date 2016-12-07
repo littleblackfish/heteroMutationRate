@@ -4,16 +4,10 @@ export PROJECT_ROOT=`pwd`
 export TAIR10=${PROJECT_ROOT}/reference/TAIR10-masked.fa
 export READS=${PROJECT_ROOT}/reads
 export MAPS=${PROJECT_ROOT}/maps
+export CALLS=${PROJECT_ROOT}/calls
 
 export PICARD="java -jar ${PROJECT_ROOT}/src/picard.jar"
 export GATK="java -jar ${PROJECT_ROOT}/src/GenomeAnalysisTK.jar"
-
-if [[ `hostname` == *karst* ]] 
-then
-	module load bwa
-	module load sra-toolkit
-	module load java
-fi
 
 source ${PROJECT_ROOT}/src/functions.sh
 

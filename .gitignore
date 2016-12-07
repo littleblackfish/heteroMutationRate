@@ -3,3 +3,8 @@
 *.bam
 *.sai
 *.bai
+*.e*
+*.o*
+*.fa
+*.fa.*
+*.dict
