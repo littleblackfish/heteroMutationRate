@@ -1,20 +1,27 @@
 #!/bin/bash
 
-PICARD="java -jar /home/muroztur/GATK/picard.jar"
-FDUMP="/home/muz/sra-tools/bin/fastq-dump"
+
+PROJECT_ROOT=$1
+TAIR10=${PROJECT_ROOT}/TAIR10-masked.fa
+
+which java
+
+PICARD="java -jar ${PROJECT_ROOT}/src/picard.jar"
+GATK="java -jar ${PROJECT_ROOT}/src/GenomeAnalysisTK.jar"
 
 # checks existence of reads for a given accession number
 # downloads from ncbi if it does not exist
 # requires fastq-dump from sratools
 
 function get_reads {
+	which fastq-dump
 	ACC=$1
 	if [ -e ${ACC}_1.fastq.gz ]  && [ -e ${ACC}_2.fastq.gz ]
 	then
 		echo $ACC exists
 	else
 		echo $ACC does not exist
-		$FDUMP -split-3 --gzip $ACC
+		fastq-dump -split-3 --gzip $ACC
 	fi
 }
 
@@ -24,9 +31,9 @@ function get_reads {
 # generates readBaseName.sam
 
 function map_reads {
-	REFERENCE=$1
-	ACCESSION=$2
-	bwa mem ${REFERENCE} \
+	which bwa 
+	ACCESSION=$1
+	bwa mem ${TAIR10} \
 	${ACCESSION}_1.fastq.gz ${ACCESSION}_2.fastq.gz \
 	> ${ACCESSION}.sam
 }
@@ -38,6 +45,7 @@ function map_reads {
 # requires PICARD
 
 function sam_to_bam {
+	which java
 	ACC=$1
 	if [ -e ${ACC}.bam ]
 	then
@@ -65,10 +73,11 @@ function sam_to_bam {
 # generates accession-marked.bai
 
 function mark_duplicates {
+	which java
 	ACCESSION=$1
 
- ${PICARD} MarkDuplicates \
-  	I=${ACCESSION}.bam \
+	${PICARD} MarkDuplicates \
+  		I=${ACCESSION}.bam \
 		O=${ACCESSION}.marked.bam \
 		M=${ACCESSION}-metrics.txt \
 		CREATE_INDEX=True
@@ -78,16 +87,13 @@ function mark_duplicates {
 # generates gvcf files
 
 function call_variants {
-	REFERENCE=$1
-	ACCESSION=$2
-	${GATK} -R ${REFERENCE} \
+	which java
+	ACCESSION=$1
+	${GATK} -R ${TAIR10} \
 		-T HaplotypeCaller  \
 		-I ${ACCESSION}.marked.bam\
 		-ERC GVCF \
 		-o ${ACCESSION}.g.vcf
-	}
+}
 
-
-
-
-#add_groups $1
+export TAIR10
