@@ -1,14 +1,5 @@
 #!/bin/bash
 
-
-PROJECT_ROOT=$1
-TAIR10=${PROJECT_ROOT}/TAIR10-masked.fa
-
-which java
-
-PICARD="java -jar ${PROJECT_ROOT}/src/picard.jar"
-GATK="java -jar ${PROJECT_ROOT}/src/GenomeAnalysisTK.jar"
-
 # checks existence of reads for a given accession number
 # downloads from ncbi if it does not exist
 # requires fastq-dump from sratools
@@ -34,7 +25,7 @@ function map_reads {
 	which bwa 
 	ACCESSION=$1
 	bwa mem ${TAIR10} \
-	${ACCESSION}_1.fastq.gz ${ACCESSION}_2.fastq.gz \
+	$READS/${ACCESSION}_1.fastq.gz $READS/${ACCESSION}_2.fastq.gz \
 	> ${ACCESSION}.sam
 }
 
