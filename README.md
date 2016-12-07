@@ -10,15 +10,18 @@ This project uses :
 
   * [sra-tools](https://github.com/ncbi/sra-tools) for acquiring data
   * [TAIR10 reference genome](ftp://ftp.arabidopsis.org/home/tair/Sequences/whole_chromosomes/) for arabidopsis
+  * [RepeatMasker](http://www.repeatmasker.org/) to mask the reference
   * [bwa](http://bio-bwa.sourceforge.net/) to map the reads to the reference genome
   * [Picard](https://broadinstitute.github.io/picard/) to do some post processing on the mapping
+([direct download](https://github.com/broadinstitute/picard/releases/download/2.7.2/picard.jar))
   * [GATK](https://software.broadinstitute.org/gatk/) to call variants
 
 The rest of the analysis is implemented in Python.
 
+
 ### Structure
 
-This workflow is computationally intensive, most significantly on storage. 
+This workflow is computationally demanding, most significantly on storage.
 Most of the work was done in [Brendel Group](http://www.brendelgroup.org/)'s computers in addition to [Karst](https://kb.iu.edu/d/bezu) at Indiana University.
 This repository has all the scripts needed to reproduce the work.
 Each folder has a shell script that would run the commands that would fill the folder.
