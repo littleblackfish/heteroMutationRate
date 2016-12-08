@@ -24,9 +24,11 @@ function get_reads {
 function map_reads {
 	which bwa 
 	ACCESSION=$1
-	bwa mem ${TAIR10} \
-	$READS/${ACCESSION}_1.fastq.gz $READS/${ACCESSION}_2.fastq.gz \
-	> ${ACCESSION}.sam
+	echo "Mapping reads from $ACCESSION ..."
+	bwa mem $TAIR10 \
+	$READS/${ACCESSION}_1.fastq.gz \
+	$READS/${ACCESSION}_2.fastq.gz \
+	> $MAPS/${ACCESSION}.sam
 }
 
 # function to convert sam to bam
@@ -34,14 +36,15 @@ function map_reads {
 # sorts the bam file at the same time
 # takes the accession no as an input an looks for the *.sam file
 # requires PICARD
+# NOTE : sorting is memory intensive
 
 function sam_to_bam {
 	which java
 	ACC=$1
 	# add readgroups, sort and convert to bam with index
 	  ${PICARD} AddOrReplaceReadGroups \
-		  I=${ACC}.sam \
-		  O=${ACC}.bam \
+		  I=$MAPS/${ACC}.sam \
+		  O=$MAPS/${ACC}.bam \
 		  SORT_ORDER=coordinate \
 		  CREATE_INDEX=True \
 		  RGID=foo \
@@ -62,9 +65,9 @@ function mark_duplicates {
 	ACCESSION=$1
 
 	${PICARD} MarkDuplicates \
-  		I=${ACCESSION}.bam \
-		O=${ACCESSION}.marked.bam \
-		M=${ACCESSION}-metrics.txt \
+  		I=$MAPS/${ACCESSION}.bam \
+		O=$MAPS/${ACCESSION}.marked.bam \
+		M=$MAPS/${ACCESSION}-metrics.txt \
 		CREATE_INDEX=True
 }
 
@@ -74,9 +77,25 @@ function mark_duplicates {
 function call_variants {
 	which java
 	ACCESSION=$1
-	${GATK} -R ${TAIR10} \
-		-T HaplotypeCaller  \
+	${GATK} -T HaplotypeCaller \
+		-R ${TAIR10} \
 		-I $MAPS/${ACCESSION}.marked.bam \
 		-ERC GVCF \
-		-o ${ACCESSION}.g.vcf
+		-o $CALLS/${ACCESSION}.g.vcf
+}
+
+# combines and genotypes per-sample GVCFs
+# generates true vcf files
+
+function genotype_all {
+	which java
+	for f in $CALLS/*.g.vcf.idx  
+	do 
+		variants="$variants -V $CALLS/`basename $f .idx` "
+	done
+
+	$GATK	-T GenotypeGVCFs \
+		-R $TAIR10 \
+		-o $CALLS/genotype.vcf \
+		$variants
 }

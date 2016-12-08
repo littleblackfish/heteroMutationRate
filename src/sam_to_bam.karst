@@ -22,23 +22,3 @@ sam_to_bam $ACCESSION
 mark_duplicates $ACCESSION
 
 qsub $ROOT/src/call.karst -F $ACCESSION -N $ACCESSION-call
-
-# add readgroups, sort and convert to bam with index
-#${PICARD} AddOrReplaceReadGroups \
-#	I=${ACCESSION}.sam \
-#	O=${ACCESSION}.bam \
-#	SORT_ORDER=coordinate \
-#	CREATE_INDEX=True \
-#	RGID=foo \
-#	RGLB=bar \
-#	RGPL=illumina \
-#	RGSM=${ACCESSION} \
-#	RGPU=blank 
-
-# Mark duplicates
-#${PICARD} MarkDuplicates \
-#	I=${ACCESSION}.bam \
-#	O=${ACCESSION}.marked.bam \
-#	M=${ACCESSION}-metrics.txt \
-#	CREATE_INDEX=True
-
