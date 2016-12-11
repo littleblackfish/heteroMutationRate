@@ -3,9 +3,9 @@
 from argparse import ArgumentParser
 from Bio import SeqIO
 from Bio.Alphabet import generic_dna
-from numpy import array,searchsorted,vstack,min
+from numpy import array,searchsorted,vstack,min,mean,std
 from random import randint
-from collections import Counter
+from collections import Counter,defaultdict
 import vcf
 
 # takes a chromosome
@@ -72,8 +72,8 @@ def get_hetero_variants(vcfFile, snpMinGQ=50, indelMinGQ=30, minAD=5, maxMissing
     vcfIter = vcf.Reader(filename=vcfFile)
     samples = vcfIter.samples
 
-    heteroSNPs = dict()
-    heteroIndels = dict()
+    heteroSNPs = defaultdict(dict)
+    heteroIndels = defaultdict(dict)
 
     for record in vcfIter :
         # we are dealing with heterozygous variants
@@ -86,7 +86,6 @@ def get_hetero_variants(vcfFile, snpMinGQ=50, indelMinGQ=30, minAD=5, maxMissing
             variants = record.get_hets()
 
             # filter by genotype quality (GQ)
-
             if record.is_snp :
                 variants = filter(lambda call: call.data.GQ > snpMinGQ, variants)
             elif record.is_indel :
@@ -96,7 +95,6 @@ def get_hetero_variants(vcfFile, snpMinGQ=50, indelMinGQ=30, minAD=5, maxMissing
                 continue
 
             # filter by alelle depth (AD)
-
             for variant in variants :
                 if min (variant.data.AD) >= minAD  :
                     GTcount[variant.data.GT] += 1
@@ -105,23 +103,23 @@ def get_hetero_variants(vcfFile, snpMinGQ=50, indelMinGQ=30, minAD=5, maxMissing
                 continue
 
             if record.is_snp :
-                heteroSNPs[record.POS]   =  GTcount
+                heteroSNPs[record.CHROM][record.POS]   =  GTcount
             elif record.is_indel :
-                heteroIndels[record.POS] =  GTcount
+                heteroIndels[record.CHROM][record.POS] =  GTcount
 
         # work on 1st chromosome only for debugging
-        if record.CHROM != 'Chr1' :
-            break
+#        if record.CHROM != 'Chr1' :
+#            break
 
     return heteroSNPs, heteroIndels
 
-def process_hetero_variants (heteroSNPs, heteroIndels, minInherit=10, maxDenovo=1) :
+def process_hetero_variants (variants, minInherit=10, maxDenovo=1) :
 
     inheritedSNPs = list()
     denovoSNPs = list()
 
-    for pos in heteroSNPs :
-        var=heteroSNPs[pos]
+    for pos in variants :
+        var=variants[pos]
         if var['0/1'] >= minInherit :
             inheritedSNPs.append(pos)
         elif var['0/1'] <= maxDenovo :
@@ -134,7 +132,7 @@ def process_hetero_variants (heteroSNPs, heteroIndels, minInherit=10, maxDenovo=
 
 def get_hetero_distances(mutationPos, heteroPos) :
 
-    # find the closest hetero points RIGHT of each mutation 
+    # find the closest hetero points RIGHT of each mutation
 
     rightHeteros = searchsorted(heteroPos, mutationPos)
 
@@ -171,8 +169,7 @@ if __name__ == '__main__' :
     parser = ArgumentParser(description='Generic Hidden Markov Model solver')
     parser.add_argument('-f', help='fasta file containing full genome')
     parser.add_argument('-v', help='vcf file containing variation')
-    args = parser.parse_args()
+    #args = parser.parse_args()
+#    chromosomes = [ record for record in SeqIO.parse(args.f, 'fasta', alphabet=generic_dna) ]
 
-    chromosomes = [ record for record in SeqIO.parse(args.f, 'fasta', alphabet=generic_dna) ]
-
-    maskedList = get_masked_ranges(chromosomes[0])
+#    maskedList { chromosome.name:get_masked_ranges(chromosomes[0])
