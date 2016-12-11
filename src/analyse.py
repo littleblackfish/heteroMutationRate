@@ -3,7 +3,7 @@
 from argparse import ArgumentParser
 from Bio import SeqIO
 from Bio.Alphabet import generic_dna
-from numpy import array,searchsorted,vstack,min,mean,std
+from numpy import array,searchsorted,vstack,min,mean,std,abs
 from random import randint
 from collections import Counter,defaultdict
 import vcf
@@ -67,7 +67,7 @@ def sample_mutations(nSamples, maskedList, chrSize=None) :
 # returns two dictionaries for SNPs and indels
 # each indexed by key
 
-def get_hetero_variants(vcfFile, snpMinGQ=50, indelMinGQ=30, minAD=5, maxMissing=8)  :
+def get_hetero_variants(vcfFile, snpMinGQ=50, indelMinGQ=30, minAD=5)  :
 
     vcfIter = vcf.Reader(filename=vcfFile)
     samples = vcfIter.samples
@@ -154,8 +154,8 @@ def get_hetero_distances(mutationPos, heteroPos) :
 
     # get distances to the closest hetero positions
     # from left and right
-    rightDist = heteroPos[rightHeteros] - mutationPos
-    leftDist  = mutationPos - heteroPos[leftHeteros]
+    rightDist = abs(heteroPos[rightHeteros] - mutationPos)
+    leftDist  = abs(mutationPos - heteroPos[leftHeteros])
 
     # get the minimum distance from either left or right
     dist = min (vstack((rightDist, leftDist)), axis=0)
