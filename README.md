@@ -1,12 +1,13 @@
 ### Description
 
-In this little project we attempt to replicate the results in [this paper](http://www.nature.com/nature/journal/v523/n7561/full/nature14649.html) which is also freely available [here](http://opus.bath.ac.uk/46581/1/Parent_progeny_sequencing_indicates_higher_mutation_rates_in_heterozygotes._.pdf).
+This project attempts to replicate the results in [this paper](http://www.nature.com/nature/journal/v523/n7561/full/nature14649.html) which is also freely available [here](http://opus.bath.ac.uk/46581/1/Parent_progeny_sequencing_indicates_higher_mutation_rates_in_heterozygotes._.pdf).
+Although it is set up to use the original data deposited to [BioProject](https://www.ncbi.nlm.nih.gov/bioproject) servers, it can easily be used as a scaffold to run a similiar analysis on arbitrary data.
 
 This work was done for [Matthew Hahn](http://www.bio.indiana.edu/faculty/directory/profile.php?person=mwh)'s *SNP Discovery and Population Genomics* class in the Fall of 2016.
 
 ### Requirements
 
-Thhe main workflow requires :
+Thhe variant calling workflow requires :
 
   * [sra-tools](https://github.com/ncbi/sra-tools) for acquiring the reads
   * [TAIR10 reference genome](ftp://ftp.arabidopsis.org/home/tair/Sequences/whole_chromosomes/) for arabidopsis
@@ -25,27 +26,41 @@ The rest of the analysis is implemented in Python. It requires :
 #### Availability
 
 The RepeatMasker database is commercial, but free for acedemic use.
-This requires an application and takes a few days to clear, likely the most problematic part in running the full workflow.
+This requires an application and takes a few days to clear, likely is the bottleneck in running the full workflow.
 GATK also requires agreement to a non-commercial licence but this is straight forward.
-All remaining software, including our analysis code is free and open source.
+All remaining software including our analysis code is free and open source.
 
+### Variant calling
 
-### Structure
+Note that this repository **includes no data** but a list of accession numbers needed to obtain the data in addition to a script to download it.
 
-This repository no data but all the scripts needed to reproduce the work.
-The [src/environment]() should be sourced from the project root, it sets up environment variables.
-The major steps to reproduce the work are embedded in bash functions in [src/functions.sh]().
+After cloning the repository, the [environment script](src/environment) should be sourced from the project root by typing.
+
+``` bash
+git clone https://github.com/muzcuk/heteroMutationRate.git
+cd heteroMutationRate
+source src/environment
+```
+
+This will set up the environment for the rest of the workflow. The major steps to reproduce the work are implemented as bash functions in a seperate [script](src/functions.sh).
 
 These steps are roughly :
   1. Download and RepeatMask the reference
   2. Download reads from ncbi
   3. Map reads to reference
   4. Call variants from mapping files
-  5. Run analysis script on the resulting vcf file
+  5. Do the analysis on the resulting vcf file
 
-An example run which would theoretically replicate the whole thing is included in [src/example_run.sh](), but this is not advised as this workflow is computationally demanding, most significantly on storage, requiring up to 2 tb of space for intermediate files.
+An example run which would execute the workflow up to the analysis step is included in [an example script](src/example.sh), but this is not advised on a personal computer as this workflow is computationally demanding, requiring up to 2 tb of space for intermediate files.
 
 Most of the work was done on [Karst](https://kb.iu.edu/d/bezu) at Indiana University.
 The relevant job files can be found in the src folder.
+Although these job files are crafted to run on Karst, they make use of the same functions available in the environment.
 
-The resulting vcf file is in the order of few gbs and can be readily processed on a personal computer.
+The resulting vcf file containing all the genotypes is in the order of few gbs and can be readily processed on a personal computer.
+
+### Hypothesis testing
+
+The hypothesis proposed by Yang et al. was tested using slightly different methodology.
+The functions necessary for the analysis is implemented in a single [pyhton script](src/analyse.py).
+The actual analysis is done and presented in a [jupyter notebook](analysis.ipynb).
