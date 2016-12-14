@@ -3,7 +3,7 @@
 from argparse import ArgumentParser
 from Bio import SeqIO
 from Bio.Alphabet import generic_dna
-from numpy import array,searchsorted,vstack,min,mean,std,abs
+from numpy import array,searchsorted,vstack,min,mean,std,abs,log
 from random import randint
 from collections import Counter,defaultdict
 import vcf
@@ -35,10 +35,13 @@ def get_masked_ranges(chromosome) :
 
 def in_masked(position, maskedList) :
     for begin, end in maskedList :
-        if begin <= position < end :
-            return True
-        elif position >= end :
-            return False
+        if end > position >= begin :
+            if position < end :
+            #    print begin, end, position, True
+                return True
+        if position < begin :
+            #    print begin, end, position, False
+                return False
 
 
 # samples random mutation positions that do not hit masked regions of a chromosome
@@ -162,6 +165,40 @@ def get_hetero_distances(mutationPos, heteroPos) :
 
     return dist
 
+
+# given a list of distances
+# returns discrete probability distribution
+
+def get_discrete_dist(samples) :
+    dist = Counter()
+    for sample in samples:
+        dist[sample] +=1
+
+    total = float (sum(dist.values()))
+
+    for item in dist :
+        dist[item] /= total
+
+    return dist
+
+
+# returns D_KL(P||Q)
+# note that P(i) must be 0 when Q(i)=0
+def kl_dist(P, Q) :
+    KLdist = 0
+    for item in P :
+        KLdist += P[item] * log(P[item]/Q[item])
+
+    return KLdist
+
+# returns JSD (P||Q)
+
+def js_dist(P, Q) :
+    PuQ = set(P).union(set(Q))
+
+    M = {item:(P[item]+Q[item])*0.5 for item in PuQ }
+
+    return 0.5*(kl_dist(P, M) + kl_dist(Q, M))
 
 if __name__ == '__main__' :
 

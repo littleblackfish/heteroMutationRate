@@ -24,6 +24,7 @@ The rest of the analysis is implemented in Python. It requires :
   * [Biopython](http://biopython.org/) to parse the reference
   * [PyVCF](http://pyvcf.readthedocs.io/en/latest/http://pyvcf.readthedocs.io/en/latest/) to parse the VCF files
   * [NumPy](http://www.numpy.org/) for efficient computations
+  * [Seaborn](http://seaborn.pydata.org/) for plotting
 
 #### Availability
 
